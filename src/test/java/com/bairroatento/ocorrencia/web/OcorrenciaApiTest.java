@@ -102,16 +102,20 @@ class OcorrenciaApiTest {
         var pool = java.util.concurrent.Executors.newFixedThreadPool(n);
         var largada = new java.util.concurrent.CountDownLatch(1);
         var futuros = new java.util.ArrayList<java.util.concurrent.Future<?>>();
-        for (long m : moradores) {
-            futuros.add(pool.submit(() -> {
-                largada.await();
-                return postJson("/ocorrencias/" + id + "/confirmacoes", "{\"moradorId\":" + m + "}")
-                        .andExpect(status().isCreated());
-            }));
+        try {
+            for (long m : moradores) {
+                futuros.add(pool.submit(() -> {
+                    largada.await();
+                    return postJson("/ocorrencias/" + id + "/confirmacoes", "{\"moradorId\":" + m + "}")
+                            .andExpect(status().isCreated());
+                }));
+            }
+            largada.countDown();
+            for (var f : futuros) f.get(10, java.util.concurrent.TimeUnit.SECONDS);
+        } finally {
+            largada.countDown();
+            pool.shutdownNow();
         }
-        largada.countDown();
-        for (var f : futuros) f.get();
-        pool.shutdown();
         mvc.perform(get("/ocorrencias/" + id)).andExpect(jsonPath("$.contadorConfirmacoes").value(n));
     }
 
