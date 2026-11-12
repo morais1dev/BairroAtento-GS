@@ -4,7 +4,6 @@ import com.bairroatento.etapa.application.RespostaEtapaService;
 import com.bairroatento.etapa.domain.Decisao;
 import com.bairroatento.etapa.domain.Etapa;
 import com.bairroatento.etapa.domain.OpcaoResposta;
-import com.bairroatento.etapa.infra.RegistroEtapas.ItemHistorico;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -58,7 +57,7 @@ public class RespostaEtapaController {
     }
 
     @GetMapping("/encaminhamentos/{id}/historico")
-    public List<ItemHistorico> historico(@PathVariable Long id) {
-        return service.historico(id);
+    public List<HistoricoEtapaResponse> historico(@PathVariable Long id) {
+        return service.historico(id).stream().map(HistoricoEtapaResponse::de).toList();
     }
 }

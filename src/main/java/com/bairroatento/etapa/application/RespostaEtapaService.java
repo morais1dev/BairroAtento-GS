@@ -77,8 +77,11 @@ public class RespostaEtapaService {
         return registro.historico(encaminhamentoId);
     }
 
-    /** Mínimo do bairro em config_regiao, ou o padrão configurado. */
+    /**
+     * Mínimo do bairro em config_regiao, ou o padrão configurado quando não há linha ou o valor
+     * gravado é inválido (&lt; 1).
+     */
     int minimoPara(String bairro) {
-        return registro.minimoDoBairro(bairro).orElse(propriedades.minimoPadrao());
+        return registro.minimoDoBairro(bairro).filter(m -> m >= 1).orElse(propriedades.minimoPadrao());
     }
 }
