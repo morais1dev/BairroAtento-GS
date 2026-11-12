@@ -27,14 +27,14 @@ public class MoradorController {
     public record MoradorRequest(
             @Schema(example = "Maria Souza") @NotBlank @Size(max = 150) String nome,
             @Schema(example = "maria.souza@example.com") @NotBlank @Email @Size(max = 255) String email,
-            @Schema(description = "CPF com ou sem pontuação", example = "529.982.247-25") @NotBlank String cpf) {}
+            @Schema(description = "CPF com ou sem pontuação", example = "969.430.400-81") @NotBlank String cpf) {}
 
     @Schema(name = "MoradorResponse")
     public record MoradorResponse(
             @Schema(example = "1") Long id,
             @Schema(example = "Maria Souza") String nome,
             @Schema(example = "maria.souza@example.com") String email,
-            @Schema(description = "CPF mascarado", example = "***.982.247-**") String cpf) {}
+            @Schema(description = "CPF mascarado (só os dois últimos dígitos aparecem)", example = "***.***.***-81") String cpf) {}
 
     private final MoradorService service;
 
@@ -48,7 +48,7 @@ public class MoradorController {
             description = "Cria um morador. O CPF é validado e devolvido mascarado; e-mail e CPF não podem repetir.")
     @ApiResponse(responseCode = "201", description = "Morador criado", content = @Content(
             schema = @Schema(implementation = MoradorResponse.class),
-            examples = @ExampleObject(value = "{\"id\":1,\"nome\":\"Maria Souza\",\"email\":\"maria.souza@example.com\",\"cpf\":\"***.982.247-**\"}")))
+            examples = @ExampleObject(value = "{\"id\":1,\"nome\":\"Maria Souza\",\"email\":\"maria.souza@example.com\",\"cpf\":\"***.***.***-81\"}")))
     @ApiResponse(responseCode = "400", description = "Dados inválidos ou JSON malformado")
     @ApiResponse(responseCode = "409", description = "E-mail ou CPF já cadastrado")
     @ApiResponse(responseCode = "422", description = "CPF inválido")
