@@ -49,7 +49,8 @@ public class Ocorrencia {
     @Column(name = "data_criacao", nullable = false)
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
-    @Column(name = "contador_confirmacoes", nullable = false)
+    // Persistido apenas por UPDATE atômico (OcorrenciaRepository.incrementarContador).
+    @Column(name = "contador_confirmacoes", nullable = false, updatable = false)
     private int contadorConfirmacoes;
 
     @ElementCollection

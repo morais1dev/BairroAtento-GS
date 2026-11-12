@@ -35,7 +35,7 @@ public class OcorrenciaService {
     public Ocorrencia registrar(String categoria, String descricao, String endereco, String bairro,
                                 Double latitude, Double longitude, Long autorId) {
         if (!moradores.existsById(autorId)) {
-            throw new NaoEncontradoException("Morador " + autorId + " não encontrado");
+            throw new RegraNegocioException("Autor inexistente: " + autorId);
         }
         if (categoria == null || !categorias.existsByNome(categoria.trim())) {
             throw new RegraNegocioException("Categoria inexistente: " + categoria);
@@ -72,7 +72,9 @@ public class OcorrenciaService {
         if (!moradores.existsById(moradorId)) {
             throw new NaoEncontradoException("Morador " + moradorId + " não encontrado");
         }
-        o.confirmar(moradorId);
-        return ocorrencias.saveAndFlush(o);
+        o.confirmar(moradorId); // regra de unicidade no domínio
+        ocorrencias.saveAndFlush(o); // insere a confirmação (UNIQUE barra corrida entre duplicadas → 409)
+        ocorrencias.incrementarContador(ocorrenciaId); // incremento atômico
+        return buscar(ocorrenciaId);
     }
 }

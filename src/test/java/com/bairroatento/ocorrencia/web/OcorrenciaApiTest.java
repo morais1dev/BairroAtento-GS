@@ -89,7 +89,30 @@ class OcorrenciaApiTest {
         postJson("/ocorrencias", "{\"categoria\":\"buraco\",\"autorId\":" + autor + "}")
                 .andExpect(status().isBadRequest());
         postJson("/ocorrencias", corpoOcorrencia(999999, "buraco", "Centro"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnprocessableContent());
+    }
+
+    @Test
+    void confirmacoesSimultaneasNaoPerdemIncremento() throws Exception {
+        long autor = criarMorador();
+        long id = criarOcorrencia(autor, "Centro");
+        int n = 8;
+        java.util.List<Long> moradores = new java.util.ArrayList<>();
+        for (int i = 0; i < n; i++) moradores.add(criarMorador());
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(n);
+        var largada = new java.util.concurrent.CountDownLatch(1);
+        var futuros = new java.util.ArrayList<java.util.concurrent.Future<?>>();
+        for (long m : moradores) {
+            futuros.add(pool.submit(() -> {
+                largada.await();
+                return postJson("/ocorrencias/" + id + "/confirmacoes", "{\"moradorId\":" + m + "}")
+                        .andExpect(status().isCreated());
+            }));
+        }
+        largada.countDown();
+        for (var f : futuros) f.get();
+        pool.shutdown();
+        mvc.perform(get("/ocorrencias/" + id)).andExpect(jsonPath("$.contadorConfirmacoes").value(n));
     }
 
     @Test
