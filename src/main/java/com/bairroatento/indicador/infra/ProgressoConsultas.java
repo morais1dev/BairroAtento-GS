@@ -23,11 +23,13 @@ public class ProgressoConsultas {
                 .param("id", encaminhamentoId).query(String.class).optional();
     }
 
-    /** Contagem bruta etapa → (resposta → n). TODO: filtrar pela rodada atual quando a V6 existir. */
+    /** Contagem bruta etapa → (resposta → n), apenas da rodada atual do encaminhamento. */
     public Map<String, Map<String, Long>> respostas(long encaminhamentoId) {
         Map<String, Map<String, Long>> out = new HashMap<>();
         jdbc.sql("SELECT etapa, resposta, COUNT(*) AS n FROM resposta_etapa "
-                        + "WHERE encaminhamento_id = :id GROUP BY etapa, resposta")
+                        + "WHERE encaminhamento_id = :id "
+                        + "AND rodada = (SELECT rodada_atual FROM encaminhamento WHERE id = :id) "
+                        + "GROUP BY etapa, resposta")
                 .param("id", encaminhamentoId)
                 .query((rs, i) -> {
                     out.computeIfAbsent(rs.getString("etapa"), k -> new HashMap<>())
