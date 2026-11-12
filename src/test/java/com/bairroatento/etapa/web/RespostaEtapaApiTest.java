@@ -174,6 +174,29 @@ class RespostaEtapaApiTest {
     }
 
     @Test
+    void reaberturaDaExecucaoReconfirmaMobilizacaoEIndicadorLeOResultado() throws Exception {
+        String bairro = jdbc.queryForObject("select o.bairro from ocorrencia o join encaminhamento e "
+                + "on e.ocorrencia_id = o.id where e.id = ?", String.class, encaminhamento);
+        confirmar("RECEBIMENTO");
+        confirmar("MOBILIZACAO");
+        responder("EXECUCAO", autor, "NAO");
+        responder("EXECUCAO", confirmador1, "NAO").andExpect(jsonPath("$.desfecho").value("REABERTA"))
+                .andExpect(jsonPath("$.etapaAtual").value("MOBILIZACAO"))
+                .andExpect(jsonPath("$.rodadaAtual").value(2));
+        confirmar("MOBILIZACAO");
+        confirmar("EXECUCAO");
+        assertThat(contar("select count(*) from etapa_confirmacao where encaminhamento_id = ? and etapa = 'MOBILIZACAO'",
+                encaminhamento)).isEqualTo(2);
+        responder("IMPACTO", autor, "NAO_AJUDOU");
+        responder("IMPACTO", confirmador1, "NAO_AJUDOU").andExpect(jsonPath("$.resultadoImpacto").value("NAO_AJUDOU"))
+                .andExpect(jsonPath("$.etapaAtual").value("IMPACTO"));
+
+        mvc.perform(get("/indicadores/impacto").param("bairro", bairro)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalEncaminhamentos").value(2))
+                .andExpect(jsonPath("$.impactosFechados").value(1));
+    }
+
+    @Test
     void empateNaoConfirmaNemReabre() throws Exception {
         responder("RECEBIMENTO", autor, "SIM");
         responder("RECEBIMENTO", confirmador1, "NAO").andExpect(jsonPath("$.desfecho").value("PENDENTE"));
