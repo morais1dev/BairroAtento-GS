@@ -6,35 +6,48 @@ CitizenTech da disciplina de Global Solution (FIAP, 2º semestre de 2026). Entre
 
 ## Ficha do Bairro Atento
 
-> As "seis perguntas do briefing" ainda não foram repassadas ao time. Abaixo estão as respostas que o contexto do projeto permite; o que falta está marcado com TODO.
+### 1. Qual é o problema?
 
-**Problema.** Os problemas do bairro (buracos, lixo acumulado, iluminação falha, calçadas danificadas) são relatados de forma dispersa, e ninguém acompanha se o relato chegou aos órgãos responsáveis nem se o problema foi resolvido.
+Os problemas do bairro (buracos, lixo acumulado, iluminação falha, calçadas danificadas) são relatados de forma dispersa, em conversas e grupos de mensagens, e ninguém acompanha se o relato chegou aos órgãos responsáveis nem se o problema foi resolvido.
 
-**Cidadão beneficiado.** O morador de bairro periférico que convive com o problema e não tem como acompanhar o que acontece com o que relatou.
+### 2. Quem é o cidadão beneficiado?
 
-**Persona (fictícia): Dona Lúcia.** Tem 58 anos, pega dois ônibus para trabalhar e desvia do mesmo buraco na rua todos os dias há um ano. Já reclamou para vizinhos e em grupos de mensagens, mas nunca soube se alguém no poder público ficou sabendo. Com o Bairro Atento ela registra o buraco, vê os vizinhos confirmando e acompanha o andamento até saber se o conserto ajudou. Cenário fictício: bairro Vila Esperança, em uma cidade fictícia de porte médio.
+O morador de bairro periférico que convive com o problema e não tem como acompanhar o que acontece com o que relatou.
 
-**Proposta.** Moradores registram ocorrências com categoria e local. Outros moradores confirmam que também veem o problema. A ocorrência é encaminhada a um ou mais destinatários (órgãos ou ONGs fictícios) e cada encaminhamento passa por quatro etapas, **confirmadas pela própria comunidade**:
+**Persona (fictícia): Dona Lúcia.** Tem 58 anos, pega dois ônibus para trabalhar e desvia do mesmo buraco na rua todos os dias há um ano. Já reclamou para vizinhos, mas nunca soube se alguém no poder público ficou sabendo. Com o Bairro Atento ela registra o buraco, vê os vizinhos confirmando e acompanha o andamento até saber se o conserto ajudou. Cenário fictício: bairro Vila Esperança, em uma cidade fictícia de porte médio.
+
+### 3. Qual é a solução proposta?
+
+Moradores registram ocorrências com categoria e local. Outros moradores confirmam que também veem o problema. A ocorrência é encaminhada a um ou mais destinatários (órgãos públicos ou ONGs fictícios) e cada encaminhamento é acompanhado pela própria comunidade, em etapas rastreáveis, com protocolo e histórico.
+
+### 4. Como funciona?
+
+Cada encaminhamento passa por quatro etapas, **confirmadas pela comunidade**, sempre em ordem:
 
 1. **Recebimento:** o relato chegou ao órgão?
 2. **Mobilização:** há alguma movimentação (vistoria, contato, protocolo)?
 3. **Execução:** o trabalho foi realizado?
 4. **Impacto:** o trabalho ajudou? (ajudou, ajudou parcialmente, não ajudou)
 
-Cada resposta pode ser "sim", "não" ou "não sei"; "não sei" não conta como confirmação nem como contestação. Um indicador de impacto por bairro mostra quanto do que foi encaminhado de fato ajudou.
+- **Respostas:** "sim", "não" ou "não sei". "Não sei" não conta como confirmação nem como contestação. Só quem registrou ou confirmou a ocorrência responde, uma vez por etapa.
+- **Limite N:** uma etapa é confirmada com pelo menos N respostas "sim" de moradores distintos e mais "sim" que "não". N é configurável por região (padrão 10).
+- **Reabertura e rodada:** com pelo menos N respostas "não" e mais "não" que "sim", a etapa é reaberta e o andamento volta à etapa anterior em uma **nova rodada**: as respostas antigas ficam no histórico, a contagem recomeça e os moradores podem responder de novo. "Não recebi" é o "não" do recebimento, que mantém o encaminhamento nessa etapa, em rodada nova.
+- **Impacto:** só é aceito depois da execução confirmada; a etapa fecha com N respostas e vale a opção mais votada.
 
-**ODS 11: Cidades e comunidades sustentáveis.** O projeto atua na meta de tornar as cidades mais inclusivas e resilientes: transforma relatos soltos sobre infraestrutura urbana básica (vias, iluminação, limpeza, calçadas) em um fluxo rastreável, dando a bairros periféricos uma forma organizada de cobrar e medir a melhoria dos serviços urbanos.
+### 5. Quais ODS a solução atende e por quê?
 
-**ODS 16: Paz, justiça e instituições eficazes.** O projeto atua na transparência e na prestação de contas das instituições e na participação da população nas decisões: cada encaminhamento tem protocolo, etapas verificáveis pela comunidade e histórico cronológico, e o indicador de impacto expõe se as instituições estão respondendo.
+**ODS 11: Cidades e comunidades sustentáveis.** Atua na meta de cidades mais inclusivas e resilientes: transforma relatos soltos sobre infraestrutura urbana básica (vias, iluminação, limpeza, calçadas) em um fluxo rastreável, dando a bairros periféricos uma forma organizada de cobrar e medir a melhoria dos serviços urbanos.
 
-**Perguntas do briefing que faltam:**
+**ODS 16: Paz, justiça e instituições eficazes.** Atua na transparência e na prestação de contas das instituições e na participação da população: cada encaminhamento tem protocolo, etapas verificáveis pela comunidade e histórico cronológico, e o indicador de impacto expõe se as instituições estão respondendo.
 
-- TODO: pergunta 1 do briefing e resposta.
-- TODO: pergunta 2 do briefing e resposta.
-- TODO: pergunta 3 do briefing e resposta.
-- TODO: pergunta 4 do briefing e resposta.
-- TODO: pergunta 5 do briefing e resposta.
-- TODO: pergunta 6 do briefing e resposta.
+### 6. Como o impacto é medido?
+
+Pelo indicador de impacto (`GET /indicadores/impacto`), filtrável por bairro e período:
+
+- **% "ajudou":** percentual de encaminhamentos com impacto apurado cujo resultado foi "ajudou";
+- **"ajudou parcialmente":** aparece em separado e não entra no percentual positivo;
+- **Tempo médio até a execução:** tempo médio entre o envio do encaminhamento e a confirmação da execução;
+- Bairro sem encaminhamentos retorna o indicador zerado, sem erro.
 
 ## Arquitetura (SOA)
 
