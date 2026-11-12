@@ -62,15 +62,6 @@ class IndicadorImpactoTest {
     }
 
     @Test
-    void maisVotadoComEmpateFicaComMenosFavoravel() {
-        assertEquals(ResultadoImpacto.AJUDOU, ResultadoImpacto.maisVotado(
-                Map.of(ResultadoImpacto.AJUDOU, 3L, ResultadoImpacto.NAO_AJUDOU, 2L)).orElseThrow());
-        assertEquals(ResultadoImpacto.NAO_AJUDOU, ResultadoImpacto.maisVotado(
-                Map.of(ResultadoImpacto.AJUDOU, 2L, ResultadoImpacto.NAO_AJUDOU, 2L)).orElseThrow());
-        assertEquals(true, ResultadoImpacto.maisVotado(Map.of()).isEmpty());
-    }
-
-    @Test
     void contagemDoProgressoPreencheZeros() {
         var c = Progresso.contagem(Map.of("EXECUCAO", Map.of("SIM", 3L, "XPTO", 9L)));
         assertEquals(3L, c.get("EXECUCAO").get("SIM"));

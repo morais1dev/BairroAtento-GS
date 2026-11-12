@@ -5,8 +5,6 @@ import com.bairroatento.indicador.domain.ResultadoImpacto;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +23,9 @@ public class IndicadorConsultas {
 
     public List<EncaminhamentoResumo> resumos(String bairro, LocalDate inicio, LocalDate fim) {
         StringBuilder sql = new StringBuilder("""
-                SELECT e.id, e.data_envio,
-                       (SELECT c.confirmada_em FROM etapa_confirmacao c
-                         WHERE c.encaminhamento_id = e.id AND c.etapa = 'EXECUCAO') AS execucao,
-                       (SELECT COUNT(*) FROM etapa_confirmacao c
-                         WHERE c.encaminhamento_id = e.id AND c.etapa = 'IMPACTO') AS impacto_fechado
+                SELECT e.data_envio, e.resultado_impacto,
+                       (SELECT MIN(c.confirmada_em) FROM etapa_confirmacao c
+                         WHERE c.encaminhamento_id = e.id AND c.etapa = 'EXECUCAO') AS execucao
                   FROM encaminhamento e JOIN ocorrencia o ON o.id = e.ocorrencia_id
                  WHERE 1 = 1
                 """);
@@ -46,33 +42,12 @@ public class IndicadorConsultas {
             sql.append(" AND e.data_envio < :fim");
             p.put("fim", Timestamp.valueOf(fim.plusDays(1).atStartOfDay()));
         }
-        List<Object[]> linhas = jdbc.sql(sql.toString()).params(p).query((rs, n) -> new Object[] {
-                rs.getLong("id"), rs.getTimestamp("data_envio"), rs.getTimestamp("execucao"),
-                rs.getLong("impacto_fechado") > 0}).list();
-        List<EncaminhamentoResumo> out = new ArrayList<>();
-        for (Object[] l : linhas) {
-            Timestamp envio = (Timestamp) l[1];
-            Timestamp exec = (Timestamp) l[2];
+        return jdbc.sql(sql.toString()).params(p).query((rs, n) -> {
+            Timestamp envio = rs.getTimestamp("data_envio");
+            Timestamp exec = rs.getTimestamp("execucao");
             Duration tempo = exec == null ? null : Duration.between(envio.toInstant(), exec.toInstant());
-            ResultadoImpacto r = (Boolean) l[3] ? resultadoImpacto((Long) l[0]) : null;
-            out.add(new EncaminhamentoResumo(r, tempo));
-        }
-        return out;
-    }
-
-    private ResultadoImpacto resultadoImpacto(long encaminhamentoId) {
-        Map<ResultadoImpacto, Long> votos = new EnumMap<>(ResultadoImpacto.class);
-        jdbc.sql("SELECT resposta, COUNT(*) AS n FROM resposta_etapa "
-                        + "WHERE encaminhamento_id = :id AND etapa = 'IMPACTO' GROUP BY resposta")
-                .param("id", encaminhamentoId)
-                .query((rs, i) -> {
-                    try {
-                        votos.put(ResultadoImpacto.valueOf(rs.getString("resposta")), rs.getLong("n"));
-                    } catch (IllegalArgumentException ignorada) {
-                        // resposta fora das opções de impacto: não conta
-                    }
-                    return null;
-                }).list();
-        return ResultadoImpacto.maisVotado(votos).orElse(null);
+            String res = rs.getString("resultado_impacto");
+            return new EncaminhamentoResumo(res == null ? null : ResultadoImpacto.valueOf(res), tempo);
+        }).list();
     }
 }

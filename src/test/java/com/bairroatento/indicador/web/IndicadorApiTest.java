@@ -107,12 +107,28 @@ class IndicadorApiTest {
     }
 
     private void fechar(long enc, long morador, String resposta, String execucao) {
-        jdbc.sql("INSERT INTO resposta_etapa (encaminhamento_id, etapa, morador_id, resposta) VALUES (:e,'IMPACTO',:m,:r)")
-                .param("e", enc).param("m", morador).param("r", resposta).update();
-        jdbc.sql("INSERT INTO etapa_confirmacao (encaminhamento_id, etapa, confirmada_em) VALUES (:e,'IMPACTO','2026-03-20 00:00:00')")
-                .param("e", enc).update();
+        jdbc.sql("UPDATE encaminhamento SET resultado_impacto = :r, data_conclusao = '2026-03-20 00:00:00' WHERE id = :e")
+                .param("e", enc).param("r", resposta).update();
         jdbc.sql("INSERT INTO etapa_confirmacao (encaminhamento_id, etapa, confirmada_em) VALUES (:e,'EXECUCAO',:t)")
                 .param("e", enc).param("t", java.sql.Timestamp.valueOf(execucao)).update();
+    }
+
+    @Test
+    void progressoMostraSoARodadaAtual() throws Exception {
+        long enc = encaminhamento("Rodadas", "RECEBIMENTO");
+        morador(9201);
+        morador(9202);
+        jdbc.sql("INSERT INTO resposta_etapa (encaminhamento_id, etapa, morador_id, resposta, rodada) VALUES (:e,'RECEBIMENTO',9201,'SIM',1)")
+                .param("e", enc).update();
+        jdbc.sql("INSERT INTO resposta_etapa (encaminhamento_id, etapa, morador_id, resposta, rodada) VALUES (:e,'RECEBIMENTO',9202,'NAO',1)")
+                .param("e", enc).update();
+        jdbc.sql("UPDATE encaminhamento SET rodada_atual = 2 WHERE id = :e").param("e", enc).update();
+        jdbc.sql("INSERT INTO resposta_etapa (encaminhamento_id, etapa, morador_id, resposta, rodada) VALUES (:e,'RECEBIMENTO',9201,'SIM',2)")
+                .param("e", enc).update();
+        mvc.perform(get("/encaminhamentos/" + enc + "/progresso"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.respostasPorEtapa.RECEBIMENTO.SIM").value(1))
+                .andExpect(jsonPath("$.respostasPorEtapa.RECEBIMENTO.NAO").value(0));
     }
 
     @Test
