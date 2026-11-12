@@ -260,6 +260,19 @@ class RespostaEtapaApiTest {
     }
 
     @Test
+    void minimoInvalidoNoBairroUsaOPadrao() throws Exception {
+        for (int invalido : List.of(0, -3)) {
+            prepararCenario(invalido); // linha existe mas é inválida: vale o padrão 10, sem 500
+            responder("RECEBIMENTO", autor, "SIM").andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.desfecho").value("PENDENTE"));
+            responder("RECEBIMENTO", confirmador1, "SIM").andExpect(status().isCreated());
+            responder("RECEBIMENTO", confirmador2, "SIM").andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.desfecho").value("PENDENTE"))
+                    .andExpect(jsonPath("$.etapaAtual").value("RECEBIMENTO"));
+        }
+    }
+
+    @Test
     void minimoVemDoBairro() throws Exception {
         prepararCenario(1);
         responder("RECEBIMENTO", confirmador2, "SIM").andExpect(jsonPath("$.desfecho").value("CONFIRMADA"));
