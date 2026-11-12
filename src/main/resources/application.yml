@@ -10,6 +10,11 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+bairroatento:
+  etapas:
+    # Mínimo de respostas para confirmar/reabrir/fechar uma etapa quando o bairro
+    # da ocorrência não tem linha em config_regiao.
+    minimo-padrao: 10
 ---
 spring:
   config:
