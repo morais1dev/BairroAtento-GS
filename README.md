@@ -2,6 +2,12 @@
 
 CitizenTech da disciplina de Global Solution (FIAP, 2º semestre de 2026). Entrega de **Arquitetura Orientada a Serviços (SOA) e Web Services**: uma API REST em Java com Spring Boot que permite aos moradores relatar problemas do bairro e acompanhar, de forma coletiva, se o relato chegou ao órgão responsável e se foi resolvido.
 
+# Integrantes
+- Leonardo Rocha Scarpitta - RM555460
+- Gustavo Morais Ildefonso - RM554972
+- Murilo Justi Rodrigues - RM554512
+- Vitor Alves Titus Eskes - RM555137
+
 > **Aviso:** este é um projeto imaginário. Todos os dados (moradores, bairros, cidade, órgãos, protocolos) são **fictícios** e não há integração com órgãos públicos. O CPF `969.430.400-81` foi **gerado para testes** e não pertence a nenhuma pessoa real; os demais CPFs usados nos testes também são gerados.
 
 ## Ficha do Bairro Atento
